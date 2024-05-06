@@ -71,7 +71,7 @@
 
     function calculaDistanciaOlhos() {
         const distancia = Math.abs(circulosOlhos[1].x - circulosOlhos[0].x); // A distância ainda é calculada entre os círculos maiores, mas representa a dos menores
-        console.log('Distância entre os círculos:', distancia);
+        alert(`Distância entre os círculos: ${distancia}`);
     }
 
     canvasSobreposicao.addEventListener('mousedown', evento => {
@@ -112,7 +112,7 @@
         contextoCaptura.drawImage(video, 0, 0, canvasCaptura.width, canvasCaptura.height);
 
         const dadosFoto = canvasCaptura.toDataURL('image/png');
-        console.log('Foto capturada:', dadosFoto);
+        //console.log('Foto capturada:', dadosFoto);
         calculaDistanciaOlhos();
     }
 
