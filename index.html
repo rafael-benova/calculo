@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Medida de DNP</title>
+    <style>
+        #container {
+            position: relative;
+            display: inline-block;
+        }
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <video id="video" autoplay></video>
+    <canvas id="canvasSobreposicao"></canvas>
+</div>
+<button id="botaoCaptura">Capturar Foto</button>
+
+<script>
+    const video = document.getElementById('video');
+    const canvasSobreposicao = document.getElementById('canvasSobreposicao');
+    const contexto = canvasSobreposicao.getContext('2d');
+    let arrastando = false;
+    let indiceCirculo;
+    let raioCirculoMenor = 10; // Defina o raio dos círculos menores
+    let circulosOlhos = [
+        { x: 120, y: 120, raio: 25 }, // Posição e tamanho do círculo maior
+        { x: 280, y: 120, raio: 25 }  // Posição e tamanho do círculo maior
+    ];
+
+    function inicializarWebcam() {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(fluxo => {
+            video.srcObject = fluxo;
+            video.addEventListener('loadedmetadata', () => {
+                canvasSobreposicao.width = video.videoWidth;
+                canvasSobreposicao.height = video.videoHeight;
+                atualizarCanvas();
+            });
+        }).catch(erro => {
+            alert('Não foi possível acessar a webcam. Verifique as permissões.');
+        });
+    }
+
+    function atualizarCanvas() {
+        contexto.clearRect(0, 0, canvasSobreposicao.width, canvasSobreposicao.height);
+        circulosOlhos.forEach(circulo => {
+            // Desenha o círculo maior
+            contexto.strokeStyle = "red";
+            contexto.beginPath();
+            contexto.arc(circulo.x, circulo.y, circulo.raio, 0, Math.PI * 2);
+            contexto.stroke();
+
+            // Desenha o círculo menor centralizado dentro do maior
+            contexto.strokeStyle = "blue";
+            contexto.beginPath();
+            contexto.arc(circulo.x, circulo.y, raioCirculoMenor, 0, Math.PI * 2);
+            contexto.stroke();
+        });
+    }
+
+    function pontoDentroCirculo(x, y, circulo) {
+        return Math.pow(x - circulo.x, 2) + Math.pow(y - circulo.y, 2) < Math.pow(circulo.raio, 2);
+    }
+
+    function calculaDistanciaOlhos() {
+        const distancia = Math.abs(circulosOlhos[1].x - circulosOlhos[0].x); // A distância ainda é calculada entre os círculos maiores, mas representa a dos menores
+        console.log('Distância entre os círculos:', distancia);
+    }
+
+    canvasSobreposicao.addEventListener('mousedown', evento => {
+        const { left, top } = canvasSobreposicao.getBoundingClientRect();
+        const mouseX = evento.clientX - left;
+        const mouseY = evento.clientY - top;
+
+        arrastando = circulosOlhos.some((circulo, indice) => {
+            if (pontoDentroCirculo(mouseX, mouseY, circulo)) {
+                indiceCirculo = indice;
+                return true;
+            }
+            return false;
+        });
+    });
+
+    canvasSobreposicao.addEventListener('mousemove', evento => {
+        if (!arrastando) return;
+        const { left, top } = canvasSobreposicao.getBoundingClientRect();
+        const mouseX = evento.clientX - left;
+        const mouseY = evento.clientY - top;
+
+        const circulo = circulosOlhos[indiceCirculo];
+        circulo.x = mouseX;
+        circulo.y = mouseY;
+        atualizarCanvas();
+    });
+
+    window.addEventListener('mouseup', () => {
+        arrastando = false;
+    });
+
+    function capturarFoto() {
+        const canvasCaptura = document.createElement('canvas');
+        canvasCaptura.width = video.videoWidth;
+        canvasCaptura.height = video.videoHeight;
+        const contextoCaptura = canvasCaptura.getContext('2d');
+        contextoCaptura.drawImage(video, 0, 0, canvasCaptura.width, canvasCaptura.height);
+
+        const dadosFoto = canvasCaptura.toDataURL('image/png');
+        console.log('Foto capturada:', dadosFoto);
+        calculaDistanciaOlhos();
+    }
+
+    document.getElementById('botaoCaptura').addEventListener('click', capturarFoto);
+
+    inicializarWebcam();
+</script>
+
+</body>
+</html>
