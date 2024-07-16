@@ -34,6 +34,14 @@
         { x: 120, y: 120, raio: 25 }, // Posição e tamanho do círculo maior
         { x: 280, y: 120, raio: 25 }  // Posição e tamanho do círculo maior
     ];
+    
+    // Definição do retângulo fixo
+    const retanguloPos = {
+        x: 100,
+        y: 80,
+        largura: 200,
+        altura: 250
+    };
 
     function inicializarWebcam() {
         navigator.mediaDevices.getUserMedia({ video: true }).then(fluxo => {
@@ -50,9 +58,16 @@
 
     function atualizarCanvas() {
         contexto.clearRect(0, 0, canvasSobreposicao.width, canvasSobreposicao.height);
+        
+        // Desenha o retângulo fixo
+        contexto.strokeStyle = "green";
+        contexto.lineWidth = 2;
+        contexto.strokeRect(retanguloPos.x, retanguloPos.y, retanguloPos.largura, retanguloPos.altura);
+        
         circulosOlhos.forEach(circulo => {
             // Desenha o círculo maior
             contexto.strokeStyle = "red";
+            contexto.lineWidth = 1;
             contexto.beginPath();
             contexto.arc(circulo.x, circulo.y, circulo.raio, 0, Math.PI * 2);
             contexto.stroke();
