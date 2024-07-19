@@ -165,7 +165,10 @@
     });
 
     function capturarFoto() {
-        contextoCaptura.drawImage(video, 0, 0, canvasCaptura.width, canvasCaptura.height);
+        contextoCaptura.save();
+        contextoCaptura.scale(-1, 1); // Inverte horizontalmente
+        contextoCaptura.drawImage(video, -canvasCaptura.width, 0, canvasCaptura.width, canvasCaptura.height);
+        contextoCaptura.restore();
         desenharMascaraOval(contextoCaptura);
         fotoCapturada = true;
         document.getElementById('botaoCalculo').style.display = 'inline-block';
