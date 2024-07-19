@@ -166,8 +166,10 @@
     });
 
     function capturarFoto() {
-        // Não aplicar a escala invertida ao capturar a foto
+        contextoCaptura.save();
+        contextoCaptura.scale(1, 1); // Manter a orientação correta
         contextoCaptura.drawImage(video, 0, 0, canvasCaptura.width, canvasCaptura.height);
+        contextoCaptura.restore();
         desenharMascaraOval(contextoCaptura);
         fotoCapturada = true;
         document.getElementById('botaoCalculo').style.display = 'inline-block';
