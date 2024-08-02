@@ -52,12 +52,11 @@
         { x: 280, y: 120, raio: 25 }  // Posição e tamanho do círculo maior
     ];
     
-    // Definição do retângulo fixo centralizado com largura média de um rosto humano
-    const larguraRetangulo = 300; // Aumentado para ajustar melhor o rosto humano
+    const larguraRetangulo = 300; // Largura fixa para consistência
     const alturaRetangulo = 320;
     const mascaraOval = {
-        x: (720 / 2) - (larguraRetangulo / 2),
-        y: (480 / 2) - (alturaRetangulo / 2),
+        x: (canvasSobreposicao.width / 2) - (larguraRetangulo / 2),
+        y: (canvasSobreposicao.height / 2) - (alturaRetangulo / 2),
         largura: larguraRetangulo,
         altura: alturaRetangulo
     };
