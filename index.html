@@ -24,6 +24,7 @@
             display: none;
         }
     </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -45,15 +46,15 @@
     let fotoCapturada = false;
     let arrastando = false;
     let indiceCirculo;
-    let raioCirculoMenor = 10; // Defina o raio dos círculos menores
+    let raioCirculoMenor = 5; // Defina o raio dos círculos menores
     let circulosOlhos = [
         { x: 120, y: 120, raio: 25 }, // Posição e tamanho do círculo maior
         { x: 280, y: 120, raio: 25 }  // Posição e tamanho do círculo maior
     ];
     
     // Definição do retângulo fixo centralizado com largura média de um rosto humano
-    const larguraRetangulo = 240; // Aumentado para ajustar melhor o rosto humano
-    const alturaRetangulo = 280;
+    const larguraRetangulo = 300; // Aumentado para ajustar melhor o rosto humano
+    const alturaRetangulo = 320;
     const mascaraOval = {
         x: (720 / 2) - (larguraRetangulo / 2),
         y: (480 / 2) - (alturaRetangulo / 2),
