@@ -24,6 +24,7 @@
             display: none;
         }
     </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -185,6 +186,27 @@
     document.getElementById('botaoReiniciar').addEventListener('click', reiniciarPagina);
 
     inicializarWebcam();
+
+
+    video.addEventListener('loadedmetadata', () => {
+    const proporcao = video.videoWidth / video.videoHeight;
+    const larguraCanvas = video.videoWidth; // Use a largura do vídeo como referência
+    const alturaCanvas = video.videoHeight; // Use a altura do vídeo como referência
+
+    canvasSobreposicao.width = larguraCanvas;
+    canvasSobreposicao.height = alturaCanvas;
+    canvasCaptura.width = larguraCanvas;
+    canvasCaptura.height = alturaCanvas;
+
+    // Ajuste a máscara oval para ser proporcional ao tamanho do vídeo
+    larguraRetangulo = larguraCanvas * 0.5; // 50% da largura do vídeo
+    alturaRetangulo = alturaCanvas * 0.6; // 60% da altura do vídeo
+
+    mascaraOval.x = (larguraCanvas / 2) - (larguraRetangulo / 2);
+    mascaraOval.y = (alturaCanvas / 2) - (alturaRetangulo / 2);
+
+    atualizarCanvas();
+});
 </script>
 
 </body>
