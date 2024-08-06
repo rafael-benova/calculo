@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Medida de DNP</title>
+    <style>
+        #container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 720px;
+        }
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        /* video {
+            transform: scaleX(-1); Espelhar o vídeo horizontalmente
+        } */
+        #canvasCaptura, #botaoCalculo, #botaoReiniciar {
+            display: none;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div id="container">
+    <video id="video" autoplay></video>
+    <canvas id="canvasSobreposicao"></canvas>
+    <canvas id="canvasCaptura"></canvas>
+</div>
+<button id="botaoCaptura">Capturar Foto</button>
+<button id="botaoCalculo">Calcular DNP</button>
+<button id="botaoReiniciar">Reiniciar</button>
+
+<script>
+    const video = document.getElementById('video');
+    const canvasSobreposicao = document.getElementById('canvasSobreposicao');
+    const canvasCaptura = document.getElementById('canvasCaptura');
+    const contexto = canvasSobreposicao.getContext('2d');
+    const contextoCaptura = canvasCaptura.getContext('2d');
+    let fotoCapturada = false;
+    let arrastando = false;
+    let indiceCirculo;
+    let raioCirculoMenor = 5;
+    let circulosOlhos = [
+        { x: 120, y: 120, raio: 25 },
+        { x: 280, y: 120, raio: 25 }
+    ];
+    
+    let larguraRetangulo = 300;
+    let alturaRetangulo = 320;
+    const mascaraOval = {
+        x: 0,
+        y: 0,
+        largura: larguraRetangulo,
+        altura: alturaRetangulo
+    };
+
+    function inicializarWebcam() {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(fluxo => {
+            video.srcObject = fluxo;
+            video.addEventListener('loadedmetadata', ajustarTamanhoCanvas);
+        }).catch(erro => {
+            alert('Não foi possível acessar a webcam. Verifique as permissões.');
+        });
+    }
+
+    function ajustarTamanhoCanvas() {
+    // Obtém as dimensões do vídeo
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    // Define as dimensões do canvas para corresponderem exatamente ao vídeo
+    canvasSobreposicao.width = videoWidth;
+    canvasSobreposicao.height = videoHeight;
+    canvasCaptura.width = videoWidth;
+    canvasCaptura.height = videoHeight;
+
+    // Aplica a inversão horizontal condicionalmente, se necessário
+    if (precisaInverter()) {
+        video.style.transform = "scaleX(-1)";
+    } else {
+        video.style.transform = "none";
+    }
+
+    // Define as proporções da máscara oval em relação ao tamanho do canvas
+    const larguraProporcional = videoWidth * 0.5; // Exemplo: 50% da largura
+    const alturaProporcional = videoHeight * 0.6; // Exemplo: 60% da altura
+
+    // Centraliza a máscara oval no canvas
+    mascaraOval.largura = larguraProporcional;
+    mascaraOval.altura = alturaProporcional;
+    mascaraOval.x = (videoWidth - mascaraOval.largura) / 2;
+    mascaraOval.y = (videoHeight - mascaraOval.altura) / 2;
+
+    // Redesenha a máscara oval
+    atualizarCanvas();
+}
+
+function precisaInverter() {
+    // Checa se é necessário aplicar a inversão horizontal
+    // Exemplos de detecção simples
+    return /Mobi|Android/i.test(navigator.userAgent);
+}
+
+
+
+function desenharMascaraOval(contexto) {
+    contexto.strokeStyle = "green";
+    contexto.lineWidth = 2;
+    contexto.beginPath();
+    contexto.ellipse(
+            mascaraOval.x + mascaraOval.largura / 2, // Centro horizontal corrigido
+            mascaraOval.y + mascaraOval.altura / 2, // Centro vertical corrigido
+            mascaraOval.largura / 2, 
+            mascaraOval.altura / 2, 
+            0, 
+            0, 
+            Math.PI * 2
+        );
+    contexto.stroke();
+}
+
+    function atualizarCanvas() {
+        contexto.clearRect(0, 0, canvasSobreposicao.width, canvasSobreposicao.height);
+        
+        if (fotoCapturada) {
+            contexto.drawImage(canvasCaptura, 0, 0);
+            circulosOlhos.forEach(circulo => {
+                contexto.strokeStyle = "red";
+                contexto.lineWidth = 1;
+                contexto.beginPath();
+                contexto.arc(circulo.x, circulo.y, circulo.raio, 0, Math.PI * 2);
+                contexto.stroke();
+
+                contexto.strokeStyle = "blue";
+                contexto.beginPath();
+                contexto.arc(circulo.x, circulo.y, raioCirculoMenor, 0, Math.PI * 2);
+                contexto.stroke();
+            });
+        } else {
+            desenharMascaraOval(contexto);
+        }
+    }
+
+    function pontoDentroCirculo(x, y, circulo) {
+        return Math.pow(x - circulo.x, 2) + Math.pow(y - circulo.y, 2) < Math.pow(circulo.raio, 2);
+    }
+
+    function calculaDistanciaOlhos() {
+        const distancia = Math.abs(circulosOlhos[1].x - circulosOlhos[0].x);
+        alert(`Distância entre os círculos: ${distancia}`);
+        document.getElementById('botaoReiniciar').style.display = 'inline-block';
+    }
+
+    canvasSobreposicao.addEventListener('mousedown', evento => {
+        if (!fotoCapturada) return;
+        const { left, top } = canvasSobreposicao.getBoundingClientRect();
+        const mouseX = evento.clientX - left;
+        const mouseY = evento.clientY - top;
+
+        arrastando = circulosOlhos.some((circulo, indice) => {
+            if (pontoDentroCirculo(mouseX, mouseY, circulo)) {
+                indiceCirculo = indice;
+                return true;
+            }
+            return false;
+        });
+    });
+
+    canvasSobreposicao.addEventListener('mousemove', evento => {
+        if (!arrastando || !fotoCapturada) return;
+        const { left, top } = canvasSobreposicao.getBoundingClientRect();
+        const mouseX = evento.clientX - left;
+        const mouseY = evento.clientY - top;
+
+        const circulo = circulosOlhos[indiceCirculo];
+        circulo.x = mouseX;
+        circulo.y = mouseY;
+        atualizarCanvas();
+    });
+
+    window.addEventListener('mouseup', () => {
+        arrastando = false;
+    });
+
+    function capturarFoto() {
+        contextoCaptura.save();
+        contextoCaptura.scale(-1, 1);
+        contextoCaptura.drawImage(video, -canvasCaptura.width, 0, canvasCaptura.width, canvasCaptura.height);
+        contextoCaptura.restore();
+        desenharMascaraOval(contextoCaptura);
+        fotoCapturada = true;
+        document.getElementById('botaoCalculo').style.display = 'inline-block';
+        video.style.display = 'none';
+        atualizarCanvas();
+    }
+
+    function reiniciarPagina() {
+        window.location.reload();
+    }
+
+    document.getElementById('botaoCaptura').addEventListener('click', capturarFoto);
+    document.getElementById('botaoCalculo').addEventListener('click', calculaDistanciaOlhos);
+    document.getElementById('botaoReiniciar').addEventListener('click', reiniciarPagina);
+
+    inicializarWebcam();
+</script>
+
+</body>
+</html>
