@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>Medida de DNP</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         #container {
             position: relative;
             display: inline-block;
@@ -15,9 +20,9 @@
             top: 0;
             left: 0;
         }
-        /* video {
-            transform: scaleX(-1); Espelhar o vídeo horizontalmente
-        } */
+        video {
+            transform: scaleX(-1); /*Espelhar o vídeo horizontalmente*/
+        }
         #canvasCaptura, #botaoCalculo, #botaoReiniciar {
             display: none;
         }
@@ -25,15 +30,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-
+    <button id="botaoCaptura">Capturar Foto</button>
+    <button id="botaoCalculo">Calcular DNP</button>
+    <button id="botaoReiniciar">Reiniciar</button>
+    <br>
 <div id="container">
     <video id="video" autoplay></video>
     <canvas id="canvasSobreposicao"></canvas>
     <canvas id="canvasCaptura"></canvas>
 </div>
-<button id="botaoCaptura">Capturar Foto</button>
-<button id="botaoCalculo">Calcular DNP</button>
-<button id="botaoReiniciar">Reiniciar</button>
 
 <script>
     const video = document.getElementById('video');
@@ -69,36 +74,36 @@
     }
 
     function ajustarTamanhoCanvas() {
-    // Obtém as dimensões do vídeo
-    const videoWidth = video.videoWidth;
-    const videoHeight = video.videoHeight;
+        // Obtém as dimensões do vídeo
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
 
-    // Define as dimensões do canvas para corresponderem exatamente ao vídeo
-    canvasSobreposicao.width = videoWidth;
-    canvasSobreposicao.height = videoHeight;
-    canvasCaptura.width = videoWidth;
-    canvasCaptura.height = videoHeight;
+        // Define as dimensões do canvas para corresponderem exatamente ao vídeo
+        canvasSobreposicao.width = videoWidth;
+        canvasSobreposicao.height = videoHeight;
+        canvasCaptura.width = videoWidth;
+        canvasCaptura.height = videoHeight;
 
-    // Aplica a inversão horizontal condicionalmente, se necessário
-    if (precisaInverter()) {
-        video.style.transform = "scaleX(-1)";
-    } else {
-        video.style.transform = "none";
+        // Aplica a inversão horizontal condicionalmente, se necessário
+        if (precisaInverter()) {
+            video.style.transform = "scaleX(-1)";
+        } else {
+            //video.style.transform = "none";
+        }
+
+        // Define as proporções da máscara oval em relação ao tamanho do canvas
+        const alturaProporcional = videoHeight * 0.6; // Exemplo: 60% da altura
+        const larguraProporcional = alturaProporcional * 0.75; // Mantém proporção 3:4
+
+        // Centraliza a máscara oval no canvas
+        mascaraOval.largura = larguraProporcional;
+        mascaraOval.altura = alturaProporcional;
+        mascaraOval.x = (videoWidth - mascaraOval.largura) / 2;
+        mascaraOval.y = (videoHeight - mascaraOval.altura) / 2;
+
+        // Redesenha a máscara oval
+        atualizarCanvas();
     }
-
-    // Define as proporções da máscara oval em relação ao tamanho do canvas
-    const larguraProporcional = videoWidth * 0.5; // Exemplo: 50% da largura
-    const alturaProporcional = videoHeight * 0.6; // Exemplo: 60% da altura
-
-    // Centraliza a máscara oval no canvas
-    mascaraOval.largura = larguraProporcional;
-    mascaraOval.altura = alturaProporcional;
-    mascaraOval.x = (videoWidth - mascaraOval.largura) / 2;
-    mascaraOval.y = (videoHeight - mascaraOval.altura) / 2;
-
-    // Redesenha a máscara oval
-    atualizarCanvas();
-}
 
 function precisaInverter() {
     // Checa se é necessário aplicar a inversão horizontal
