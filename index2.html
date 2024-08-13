@@ -156,10 +156,12 @@ function desenharMascaraOval(contexto) {
     }
 
     function calculaDistanciaOlhos() {
-        const distancia = Math.abs(circulosOlhos[1].x - circulosOlhos[0].x);
-        alert(`Distância entre os círculos: ${distancia}`);
-        document.getElementById('botaoReiniciar').style.display = 'inline-block';
-    }
+    const distancia = Math.abs(circulosOlhos[1].x - circulosOlhos[0].x);
+    const distanciaArredondada = distancia.toFixed(2); // Arredonda para 2 casas decimais
+    alert(`Distância entre os círculos: ${distanciaArredondada}`);
+    document.getElementById('botaoReiniciar').style.display = 'inline-block';
+}
+
 
     // Funções para tratar os eventos de toque
 canvasSobreposicao.addEventListener('touchstart', evento => {
@@ -228,17 +230,65 @@ window.addEventListener('mouseup', () => {
     arrastando = false;
 });
 
-    function capturarFoto() {
-        contextoCaptura.save();
-        contextoCaptura.scale(-1, 1);
-        contextoCaptura.drawImage(video, -canvasCaptura.width, 0, canvasCaptura.width, canvasCaptura.height);
-        contextoCaptura.restore();
-        desenharMascaraOval(contextoCaptura);
-        fotoCapturada = true;
-        document.getElementById('botaoCalculo').style.display = 'inline-block';
-        video.style.display = 'none';
-        atualizarCanvas();
+function normalizarResolucaoImagem() {
+    // Captura as dimensões originais da imagem
+    const larguraOriginal = canvasCaptura.width;
+    const alturaOriginal = canvasCaptura.height;
+
+    // Defina a maior dimensão padrão (ex: 640px para a largura ou altura, dependendo da orientação)
+    const maiorDimensaoPadrao = 640;
+    let novaLargura, novaAltura;
+
+    // Calcula a nova largura e altura mantendo a proporção original
+    if (larguraOriginal > alturaOriginal) {
+        novaLargura = maiorDimensaoPadrao;
+        novaAltura = (alturaOriginal / larguraOriginal) * maiorDimensaoPadrao;
+    } else {
+        novaAltura = maiorDimensaoPadrao;
+        novaLargura = (larguraOriginal / alturaOriginal) * maiorDimensaoPadrao;
     }
+
+    // Captura a imagem original
+    const imgOriginal = new Image();
+    imgOriginal.src = canvasCaptura.toDataURL();
+
+    imgOriginal.onload = () => {
+        // Redimensiona a imagem para a nova largura e altura mantendo a proporção
+        canvasCaptura.width = novaLargura;
+        canvasCaptura.height = novaAltura;
+        contextoCaptura.drawImage(imgOriginal, 0, 0, novaLargura, novaAltura);
+
+        // Ajuste as coordenadas e tamanhos dos círculos
+        const escalaLargura = novaLargura / larguraOriginal;
+        const escalaAltura = novaAltura / alturaOriginal;
+
+        circulosOlhos.forEach(circulo => {
+            circulo.x *= escalaLargura;
+            circulo.y *= escalaAltura;
+            circulo.raio *= Math.sqrt(escalaLargura * escalaAltura); // Mantém a proporção do raio
+        });
+
+        // Atualiza o canvas após a normalização
+        atualizarCanvas();
+    };
+}
+
+function capturarFoto() {
+    contextoCaptura.save();
+    contextoCaptura.scale(-1, 1);
+    contextoCaptura.drawImage(video, -canvasCaptura.width, 0, canvasCaptura.width, canvasCaptura.height);
+    contextoCaptura.restore();
+    desenharMascaraOval(contextoCaptura);
+    fotoCapturada = true;
+    document.getElementById('botaoCalculo').style.display = 'inline-block';
+    video.style.display = 'none';
+    
+    // Normaliza a resolução da imagem capturada
+    normalizarResolucaoImagem();
+    
+    atualizarCanvas();
+}
+
 
     function reiniciarPagina() {
         window.location.reload();
