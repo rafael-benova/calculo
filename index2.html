@@ -235,33 +235,36 @@ function normalizarResolucaoImagem() {
     const larguraOriginal = canvasCaptura.width;
     const alturaOriginal = canvasCaptura.height;
 
-    // Defina a maior dimensão padrão (ex: 640px para a largura ou altura, dependendo da orientação)
-    const maiorDimensaoPadrao = 640;
+    // Define a resolução padrão baseada na maior dimensão da imagem
+    const maiorDimensaoPadrao = 640; // Escolha 640px para a maior dimensão
     let novaLargura, novaAltura;
 
     // Calcula a nova largura e altura mantendo a proporção original
     if (larguraOriginal > alturaOriginal) {
+        // Landscape
         novaLargura = maiorDimensaoPadrao;
         novaAltura = (alturaOriginal / larguraOriginal) * maiorDimensaoPadrao;
     } else {
+        // Portrait
         novaAltura = maiorDimensaoPadrao;
         novaLargura = (larguraOriginal / alturaOriginal) * maiorDimensaoPadrao;
     }
 
-    // Captura a imagem original
+    // Redimensiona a imagem mantendo a proporção
     const imgOriginal = new Image();
     imgOriginal.src = canvasCaptura.toDataURL();
 
     imgOriginal.onload = () => {
-        // Redimensiona a imagem para a nova largura e altura mantendo a proporção
+        // Atualiza o tamanho do canvas para a nova resolução
         canvasCaptura.width = novaLargura;
         canvasCaptura.height = novaAltura;
         contextoCaptura.drawImage(imgOriginal, 0, 0, novaLargura, novaAltura);
 
-        // Ajuste as coordenadas e tamanhos dos círculos
+        // Calcula a escala de transformação para ajustar os círculos
         const escalaLargura = novaLargura / larguraOriginal;
         const escalaAltura = novaAltura / alturaOriginal;
 
+        // Ajusta as coordenadas e tamanhos dos círculos para a resolução padronizada
         circulosOlhos.forEach(circulo => {
             circulo.x *= escalaLargura;
             circulo.y *= escalaAltura;
