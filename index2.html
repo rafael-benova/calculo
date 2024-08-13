@@ -161,36 +161,72 @@ function desenharMascaraOval(contexto) {
         document.getElementById('botaoReiniciar').style.display = 'inline-block';
     }
 
-    canvasSobreposicao.addEventListener('mousedown', evento => {
-        if (!fotoCapturada) return;
-        const { left, top } = canvasSobreposicao.getBoundingClientRect();
-        const mouseX = evento.clientX - left;
-        const mouseY = evento.clientY - top;
+    // Funções para tratar os eventos de toque
+canvasSobreposicao.addEventListener('touchstart', evento => {
+    if (!fotoCapturada) return;
+    const touch = evento.touches[0];
+    const { left, top } = canvasSobreposicao.getBoundingClientRect();
+    const touchX = touch.clientX - left;
+    const touchY = touch.clientY - top;
 
-        arrastando = circulosOlhos.some((circulo, indice) => {
-            if (pontoDentroCirculo(mouseX, mouseY, circulo)) {
-                indiceCirculo = indice;
-                return true;
-            }
-            return false;
-        });
+    arrastando = circulosOlhos.some((circulo, indice) => {
+        if (pontoDentroCirculo(touchX, touchY, circulo)) {
+            indiceCirculo = indice;
+            return true;
+        }
+        return false;
     });
+});
 
-    canvasSobreposicao.addEventListener('mousemove', evento => {
-        if (!arrastando || !fotoCapturada) return;
-        const { left, top } = canvasSobreposicao.getBoundingClientRect();
-        const mouseX = evento.clientX - left;
-        const mouseY = evento.clientY - top;
+canvasSobreposicao.addEventListener('touchmove', evento => {
+    if (!arrastando || !fotoCapturada) return;
+    evento.preventDefault(); // Evita o comportamento padrão de rolagem
+    const touch = evento.touches[0];
+    const { left, top } = canvasSobreposicao.getBoundingClientRect();
+    const touchX = touch.clientX - left;
+    const touchY = touch.clientY - top;
 
-        const circulo = circulosOlhos[indiceCirculo];
-        circulo.x = mouseX;
-        circulo.y = mouseY;
-        atualizarCanvas();
+    const circulo = circulosOlhos[indiceCirculo];
+    circulo.x = touchX;
+    circulo.y = touchY;
+    atualizarCanvas();
+});
+
+window.addEventListener('touchend', () => {
+    arrastando = false;
+});
+
+// Eventos para mouse já existentes
+canvasSobreposicao.addEventListener('mousedown', evento => {
+    if (!fotoCapturada) return;
+    const { left, top } = canvasSobreposicao.getBoundingClientRect();
+    const mouseX = evento.clientX - left;
+    const mouseY = evento.clientY - top;
+
+    arrastando = circulosOlhos.some((circulo, indice) => {
+        if (pontoDentroCirculo(mouseX, mouseY, circulo)) {
+            indiceCirculo = indice;
+            return true;
+        }
+        return false;
     });
+});
 
-    window.addEventListener('mouseup', () => {
-        arrastando = false;
-    });
+canvasSobreposicao.addEventListener('mousemove', evento => {
+    if (!arrastando || !fotoCapturada) return;
+    const { left, top } = canvasSobreposicao.getBoundingClientRect();
+    const mouseX = evento.clientX - left;
+    const mouseY = evento.clientY - top;
+
+    const circulo = circulosOlhos[indiceCirculo];
+    circulo.x = mouseX;
+    circulo.y = mouseY;
+    atualizarCanvas();
+});
+
+window.addEventListener('mouseup', () => {
+    arrastando = false;
+});
 
     function capturarFoto() {
         contextoCaptura.save();
