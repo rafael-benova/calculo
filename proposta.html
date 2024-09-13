@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Ticket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Formulário de Ticket</h1>
+    <form id="ticketForm">
+        <label for="tipoProblema">Tipo de Problema:</label>
+        <select id="tipoProblema" name="tipoProblema">
+            <option value="pagamento">Problema de pagamento</option>
+            <option value="checkout">Erro no checkout</option>
+            <option value="produtos">Erro na exibição de produtos</option>
+            <option value="integracao">Problema de integração</option>
+            <option value="performance">Problema de performance</option>
+            <option value="layout">Pedido de atualização de layout</option>
+            <option value="outro">Outro</option>
+        </select>
+
+        <label for="impactoProblema">Impacto do Problema:</label>
+        <select id="impactoProblema" name="impactoProblema">
+            <option value="fora-do-ar">Site fora do ar</option>
+            <option value="checkout">Erro em etapa crítica (checkout, pagamento)</option>
+            <option value="funcionalidade">Função específica não está funcionando</option>
+            <option value="melhoria">Solicitação de melhoria</option>
+        </select>
+
+        <label for="volumeAfetado">Volume Afetado:</label>
+        <select id="volumeAfetado" name="volumeAfetado">
+            <option value="nenhum">Nenhum pedido afetado</option>
+            <option value="1-5">1-5 pedidos</option>
+            <option value="mais-10">Mais de 10 pedidos</option>
+            <option value="todos">Todos os pedidos</option>
+        </select>
+
+        <label for="prazoEsperado">Prazo Esperado:</label>
+        <select id="prazoEsperado" name="prazoEsperado">
+            <option value="imediato">Precisa ser resolvido imediatamente</option>
+            <option value="24h">Resolução em até 24 horas</option>
+            <option value="3-dias">Resolução em até 3 dias</option>
+            <option value="1-semana">Resolução em até uma semana</option>
+        </select>
+
+        <label for="descricaoProblema">Descrição Detalhada do Problema:</label>
+        <textarea id="descricaoProblema" name="descricaoProblema" rows="5" placeholder="Descreva o problema com mais detalhes"></textarea>
+
+        <label for="urlReferencia">URL de Referência (opcional):</label>
+        <input type="url" id="urlReferencia" name="urlReferencia" placeholder="https://exemplo.com/pagina-com-problema">
+
+        <label for="anexo">Anexos (opcional):</label>
+        <input type="file" id="anexo" name="anexo">
+
+        <button type="submit">Enviar Ticket</button>
+    </form>
+
+    <script>
+        document.getElementById('ticketForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Previne o envio real
+
+            // Coleta os dados do formulário
+            const tipoProblema = document.getElementById('tipoProblema').value;
+            const impactoProblema = document.getElementById('impactoProblema').value;
+            const volumeAfetado = document.getElementById('volumeAfetado').value;
+            const prazoEsperado = document.getElementById('prazoEsperado').value;
+            const descricaoProblema = document.getElementById('descricaoProblema').value;
+            const urlReferencia = document.getElementById('urlReferencia').value;
+            const anexo = document.getElementById('anexo').files[0];
+
+            // Exibe os dados no console para simular o envio
+            console.log("Tipo de Problema:", tipoProblema);
+            console.log("Impacto do Problema:", impactoProblema);
+            console.log("Volume Afetado:", volumeAfetado);
+            console.log("Prazo Esperado:", prazoEsperado);
+            console.log("Descrição Detalhada:", descricaoProblema);
+            console.log("URL de Referência:", urlReferencia);
+            console.log("Anexo:", anexo ? anexo.name : "Nenhum anexo");
+
+            alert("Ticket enviado com sucesso! (Simulação)");
+        });
+    </script>
+
+</body>
+</html>
